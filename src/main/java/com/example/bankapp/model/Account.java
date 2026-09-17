@@ -12,8 +12,8 @@ public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int accountID;
-
+    
+    private Integer accountID;
     private String accountNumber;
     private BigDecimal balance;
     private String accountType;
@@ -21,14 +21,14 @@ public class Account {
     public Account() {
     }
 
-    public Account(int accountID, String accountNumber, BigDecimal balance, String accountType) {
+    public Account(Integer accountID, String accountNumber, BigDecimal balance, String accountType) {
         this.accountID = accountID;
         this.accountNumber = accountNumber;
         this.balance = balance;
         this.accountType = accountType;
     }
 
-    public int getAccountID() {
+    public Integer getAccountID() {
         return accountID;
     }
 
@@ -44,7 +44,7 @@ public class Account {
         return accountType;
     }
 
-    public void setAccountID(int accountID) {
+    public void setAccountID(Integer accountID) {
         this.accountID = accountID;
     }
 

@@ -2,9 +2,7 @@ package com.example.bankapp.controller;
 
 import com.example.bankapp.model.Account;
 import com.example.bankapp.service.AccountService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,5 +19,10 @@ public class AccountController {
     @GetMapping
     public List<Account> getAllAccounts() {
         return accountService.getAllAccounts();
+    }
+
+    @PostMapping
+    public Account createAccount(@RequestBody Account account) {
+        return accountService.createAccount(account);
     }
 }
