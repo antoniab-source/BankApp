@@ -1,7 +1,7 @@
 package com.example.bankapp.service;
 
-import com.example.bankapp.model.LoginRequest;
-import com.example.bankapp.model.LoginResponse;
+import com.example.bankapp.dto.LoginRequest;
+import com.example.bankapp.dto.LoginResponse;
 import com.example.bankapp.model.User;
 import com.example.bankapp.repository.UserRepository;
 import org.springframework.http.HttpStatus;
@@ -55,11 +55,12 @@ public class AuthService {
             );
         }
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.UNAUTHORIZED,
-                        "Invalid username or password"
-                ));
+        User user = userRepository.findByUsername(
+                loginRequest.getUsername()
+        ).orElseThrow(() -> new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED,
+                "Invalid username or password"
+        ));
 
         String token = jwtService.generateToken(user);
 

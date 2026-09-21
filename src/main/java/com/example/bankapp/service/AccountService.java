@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class AccountService {
@@ -94,6 +95,64 @@ public class AccountService {
         account.setUser(user);
 
         return accountRepository.save(account);
+    }
+
+    @Transactional
+    public Account createAccountForRegistration(
+            User user,
+            String accountType,
+            BigDecimal initialDeposit) {
+
+        if (initialDeposit == null) {
+            initialDeposit = BigDecimal.ZERO;
+        }
+
+        if (initialDeposit.compareTo(BigDecimal.ZERO) < 0) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Initial deposit cannot be negative"
+            );
+        }
+
+        Account account = new Account();
+
+        account.setAccountID(null);
+        account.setAccountNumber(generateUniqueAccountNumber());
+        account.setBalance(initialDeposit);
+        account.setAccountType(accountType);
+        account.setUser(user);
+
+        Account savedAccount = accountRepository.save(account);
+
+        if (initialDeposit.compareTo(BigDecimal.ZERO) > 0) {
+
+            Transaction transaction = new Transaction(
+                    "DEPOSIT",
+                    initialDeposit,
+                    LocalDateTime.now(),
+                    savedAccount
+            );
+
+            transactionRepository.save(transaction);
+        }
+
+        return savedAccount;
+    }
+
+    private String generateUniqueAccountNumber() {
+
+        String accountNumber;
+
+        do {
+            accountNumber = String.valueOf(
+                    ThreadLocalRandom.current()
+                            .nextLong(100000000L, 1000000000L)
+            );
+        } while (
+                accountRepository.existsByAccountNumber(accountNumber)
+        );
+
+        return accountNumber;
     }
 
     public Account updateAccount(

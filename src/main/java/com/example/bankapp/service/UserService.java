@@ -1,5 +1,4 @@
 package com.example.bankapp.service;
-
 import com.example.bankapp.model.User;
 import com.example.bankapp.repository.UserRepository;
 import com.example.bankapp.security.AuthorizationService;
@@ -58,6 +57,65 @@ public class UserService {
         user.setUserID(null);
         user.setRole("CUSTOMER");
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        return userRepository.save(user);
+    }
+
+    public User registerUser(User user) {
+
+        if (user.getUsername() == null
+                || user.getUsername().isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Username is required"
+            );
+        }
+
+        if (user.getEmail() == null
+                || user.getEmail().isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email is required"
+            );
+        }
+
+        if (user.getPassword() == null
+                || user.getPassword().isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Password is required"
+            );
+        }
+
+        if (userRepository.existsByUsername(user.getUsername())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Username is already in use"
+            );
+        }
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Email is already in use"
+            );
+        }
+
+        user.setUserID(null);
+
+        // Public registration always creates a CUSTOMER.
+        // The user cannot choose their own role.
+        user.setRole("CUSTOMER");
+
+        // Never store the plain-text password.
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
 
         return userRepository.save(user);
     }

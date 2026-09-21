@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Login({ onLogin }) {
+function Login({ onLogin, setCurrentPage }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -49,12 +49,16 @@ function Login({ onLogin }) {
       <form onSubmit={handleLogin}>
         <div>
           <label htmlFor="username">Username</label>
+
           <br />
+
           <input
             id="username"
             type="text"
             value={username}
-            onChange={(event) => setUsername(event.target.value)}
+            onChange={(event) =>
+              setUsername(event.target.value)
+            }
             required
           />
         </div>
@@ -63,12 +67,16 @@ function Login({ onLogin }) {
 
         <div>
           <label htmlFor="password">Password</label>
+
           <br />
+
           <input
             id="password"
             type="password"
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            onChange={(event) =>
+              setPassword(event.target.value)
+            }
             required
           />
         </div>
@@ -81,6 +89,20 @@ function Login({ onLogin }) {
       </form>
 
       {error && <p>{error}</p>}
+
+      <br />
+
+      <section>
+        <h3>New to BankApp?</h3>
+
+        <p>Create an account to get started.</p>
+
+        <button
+          onClick={() => setCurrentPage("Register")}
+        >
+          Create an Account
+        </button>
+      </section>
     </main>
   );
 }

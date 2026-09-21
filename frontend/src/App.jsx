@@ -10,6 +10,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Data from "./pages/Data";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import AccountDetails from "./pages/AccountDetails";
 import Profile from "./pages/Profile";
 
@@ -55,8 +56,16 @@ function App() {
     }
 
     if (currentPage === "Login") {
-      return <Login onLogin={handleLogin} />;
-    }
+  return (
+    <Login
+      onLogin={handleLogin}
+      setCurrentPage={setCurrentPage}
+    />
+  );
+}
+    if (currentPage === "Register") {
+  return <Register setCurrentPage={setCurrentPage} />;
+}
 
     if (currentPage === "Profile" && isLoggedIn) {
   return <Profile />;
