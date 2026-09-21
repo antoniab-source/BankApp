@@ -5,7 +5,9 @@ import com.example.bankapp.model.Deposit;
 import com.example.bankapp.model.Transfer;
 import com.example.bankapp.model.Withdrawal;
 import com.example.bankapp.service.AccountService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -26,7 +28,18 @@ public class AccountController {
 
     @GetMapping("/{accountID}")
     public Account getAccountById(@PathVariable Integer accountID) {
-        return accountService.getAccountById(accountID);
+        try {
+            return accountService.getAccountById(accountID);
+        } catch (ResponseStatusException exception) {
+            if (exception.getStatusCode() == HttpStatus.FORBIDDEN) {
+                throw new ResponseStatusException(
+                        HttpStatus.FORBIDDEN,
+                        "Access denied"
+                );
+            }
+
+            throw exception;
+        }
     }
 
     @GetMapping("/user/{userID}")
