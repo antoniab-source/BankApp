@@ -11,6 +11,7 @@ import Contact from "./pages/Contact";
 import Data from "./pages/Data";
 import Login from "./pages/Login";
 import AccountDetails from "./pages/AccountDetails";
+import Profile from "./pages/Profile";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("Home");
@@ -57,6 +58,9 @@ function App() {
       return <Login onLogin={handleLogin} />;
     }
 
+    if (currentPage === "Profile" && isLoggedIn) {
+  return <Profile />;
+}
     if (currentPage === "About") {
       return <About />;
     }

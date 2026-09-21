@@ -14,6 +14,9 @@ function Navbar({
           <button onClick={() => setCurrentPage("Accounts")}>
             My Accounts
           </button>
+          <button onClick={() => setCurrentPage("Profile")}>
+  Profile
+</button>
 
           <button onClick={() => setCurrentPage("About")}>
             About
