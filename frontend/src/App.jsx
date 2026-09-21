@@ -9,21 +9,24 @@ import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Data from "./pages/Data";
+import Deposit from "./pages/Deposit";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("Home");
 
   const renderPage = () => {
+    if (currentPage === "Accounts") {
+      return <Data />;
+    }
+    if (currentPage === "Deposit") {
+  return <Deposit />;
+}
     if (currentPage === "About") {
       return <About />;
     }
 
     if (currentPage === "Contact") {
       return <Contact />;
-    }
-
-    if (currentPage === "Data") {
-      return <Data />;
     }
 
     return <Home />;

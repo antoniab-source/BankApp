@@ -1,25 +1,30 @@
 function Home() {
   return (
-    <main>
-      <h2>Welcome to BankApp</h2>
+    <main className="dashboard">
+      <section className="welcome-section">
+        <h2>Welcome to BankApp</h2>
+        <p>
+          Manage your accounts, view your balances, and make transactions
+          through your BankApp dashboard.
+        </p>
+      </section>
 
-      <p>
-        Welcome to BankApp, a full-stack banking application.
-      </p>
+      <section className="dashboard-cards">
+        <div className="dashboard-card">
+          <h3>Accounts</h3>
+          <p>View your checking and savings accounts.</p>
+        </div>
 
-      <p>
-        BankApp allows customers to manage their accounts and
-        view account information through a simple web application.
-      </p>
+        <div className="dashboard-card">
+          <h3>Balances</h3>
+          <p>Keep track of your current account balances.</p>
+        </div>
 
-      <h3>What You Can Do</h3>
-
-      <ul>
-        <li>View account information</li>
-        <li>Manage your banking accounts</li>
-        <li>View account balances</li>
-        <li>Review transaction information</li>
-      </ul>
+        <div className="dashboard-card">
+          <h3>Transactions</h3>
+          <p>Deposit, withdraw, and transfer funds.</p>
+        </div>
+      </section>
     </main>
   );
 }

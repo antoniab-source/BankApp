@@ -5,7 +5,7 @@ function Data() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const showAllCustomers = async () => {
+  const getAccounts = async () => {
     try {
       setLoading(true);
       setError("");
@@ -13,7 +13,7 @@ function Data() {
       const response = await fetch("http://localhost:8080/api/accounts");
 
       if (!response.ok) {
-        throw new Error("Failed to retrieve customer data.");
+        throw new Error("Failed to retrieve account data.");
       }
 
       const data = await response.json();
@@ -28,14 +28,14 @@ function Data() {
 
   return (
     <main>
-      <h2>Customer Data</h2>
+      <h2>My Accounts</h2>
 
       <p>
-        View account information retrieved from the BankApp REST API.
+        View your BankApp accounts and current balances.
       </p>
 
-      <button onClick={showAllCustomers}>
-        ShowAllCustomers
+      <button onClick={getAccounts}>
+        View My Accounts
       </button>
 
       {loading && <p>Loading account data...</p>}
@@ -71,11 +71,10 @@ function Data() {
       )}
 
       {accounts.length === 0 && !loading && !error && (
-        <p>Click "ShowAllCustomers" to retrieve account data.</p>
+        <p>Click "View My Accounts" to retrieve your accounts.</p>
       )}
     </main>
   );
 }
 
 export default Data;
-
