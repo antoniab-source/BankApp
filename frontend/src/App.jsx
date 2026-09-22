@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AccountDetails from "./pages/AccountDetails";
 import Profile from "./pages/Profile";
+import OpenAccount from "./pages/OpenAccount";
 
 function App() {
   const [currentPage, setCurrentPage] = useState("Home");
@@ -69,6 +70,13 @@ function App() {
 
     if (currentPage === "Profile" && isLoggedIn) {
   return <Profile />;
+}
+if (currentPage === "OpenAccount" && isLoggedIn) {
+  return (
+    <OpenAccount
+      setCurrentPage={setCurrentPage}
+    />
+  );
 }
     if (currentPage === "About") {
       return <About />;

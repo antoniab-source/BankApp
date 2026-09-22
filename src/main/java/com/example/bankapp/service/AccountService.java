@@ -76,68 +76,159 @@ public class AccountService {
         );
     }
 
-    public Account createAccount(Account account) {
+public Account createAccount(Account account) {
 
-        if (account.getUser() == null
-                || account.getUser().getUserID() == null) {
+    if (account.getUser() == null
+            || account.getUser().getUserID() == null) {
 
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "User is required"
-            );
-        }
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "User is required"
+        );
+    }
 
-        User user = userService.getUserById(
-                account.getUser().getUserID()
+    User user = userService.getUserById(
+            account.getUser().getUserID()
+    );
+
+    String accountType = account.getAccountType();
+
+    if (accountType == null
+            || accountType.isBlank()) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Account type is required"
+        );
+    }
+
+    if (!accountType.equals("Checking")
+            && !accountType.equals("Savings")) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid account type"
+        );
+    }
+
+    if (accountRepository.existsByUser_UserIDAndAccountType(
+            user.getUserID(),
+            accountType)) {
+
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "You already have a " + accountType + " account"
+        );
+    }
+
+    BigDecimal initialDeposit = account.getBalance();
+
+    if (initialDeposit == null) {
+        initialDeposit = BigDecimal.ZERO;
+    }
+
+    if (initialDeposit.compareTo(BigDecimal.ZERO) < 0) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Initial deposit cannot be negative"
+        );
+    }
+
+    account.setAccountID(null);
+    account.setAccountNumber(
+            generateUniqueAccountNumber()
+    );
+    account.setBalance(initialDeposit);
+    account.setUser(user);
+
+    Account savedAccount = accountRepository.save(account);
+
+    if (initialDeposit.compareTo(BigDecimal.ZERO) > 0) {
+
+        Transaction transaction = new Transaction(
+                "DEPOSIT",
+                initialDeposit,
+                LocalDateTime.now(),
+                savedAccount
         );
 
-        account.setAccountID(null);
-        account.setUser(user);
-
-        return accountRepository.save(account);
+        transactionRepository.save(transaction);
     }
+
+    return savedAccount;
+}
 
     @Transactional
-    public Account createAccountForRegistration(
-            User user,
-            String accountType,
-            BigDecimal initialDeposit) {
+public Account createAccountForRegistration(
+        User user,
+        String accountType,
+        BigDecimal initialDeposit) {
 
-        if (initialDeposit == null) {
-            initialDeposit = BigDecimal.ZERO;
-        }
+    if (accountType == null
+            || accountType.isBlank()) {
 
-        if (initialDeposit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Initial deposit cannot be negative"
-            );
-        }
-
-        Account account = new Account();
-
-        account.setAccountID(null);
-        account.setAccountNumber(generateUniqueAccountNumber());
-        account.setBalance(initialDeposit);
-        account.setAccountType(accountType);
-        account.setUser(user);
-
-        Account savedAccount = accountRepository.save(account);
-
-        if (initialDeposit.compareTo(BigDecimal.ZERO) > 0) {
-
-            Transaction transaction = new Transaction(
-                    "DEPOSIT",
-                    initialDeposit,
-                    LocalDateTime.now(),
-                    savedAccount
-            );
-
-            transactionRepository.save(transaction);
-        }
-
-        return savedAccount;
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Account type is required"
+        );
     }
+
+    if (!accountType.equals("Checking")
+            && !accountType.equals("Savings")) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid account type"
+        );
+    }
+
+    if (accountRepository.existsByUser_UserIDAndAccountType(
+            user.getUserID(),
+            accountType)) {
+
+        throw new ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "You already have a " + accountType + " account"
+        );
+    }
+
+    if (initialDeposit == null) {
+        initialDeposit = BigDecimal.ZERO;
+    }
+
+    if (initialDeposit.compareTo(BigDecimal.ZERO) < 0) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Initial deposit cannot be negative"
+        );
+    }
+
+    Account account = new Account();
+
+    account.setAccountID(null);
+    account.setAccountNumber(generateUniqueAccountNumber());
+    account.setBalance(initialDeposit);
+    account.setAccountType(accountType);
+    account.setUser(user);
+
+    Account savedAccount = accountRepository.save(account);
+
+    if (initialDeposit.compareTo(BigDecimal.ZERO) > 0) {
+
+        Transaction transaction = new Transaction(
+                "DEPOSIT",
+                initialDeposit,
+                LocalDateTime.now(),
+                savedAccount
+        );
+
+        transactionRepository.save(transaction);
+    }
+
+    return savedAccount;
+}
 
     private String generateUniqueAccountNumber() {
 

@@ -7,6 +7,14 @@ function Data({ setCurrentPage, setSelectedAccount }) {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
+  const hasChecking = accounts.some(
+  (account) => account.accountType === "Checking"
+);
+
+const hasSavings = accounts.some(
+  (account) => account.accountType === "Savings"
+);
+
   useEffect(() => {
     const getAccounts = async () => {
       try {
@@ -107,6 +115,13 @@ function Data({ setCurrentPage, setSelectedAccount }) {
           </div>
         </section>
       )}
+     {!loading && !error && (!hasChecking || !hasSavings) && (
+  <button
+    onClick={() => setCurrentPage("OpenAccount")}
+  >
+    Open Another Account
+  </button>
+)} 
     </main>
   );
 }

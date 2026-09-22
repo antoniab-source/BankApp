@@ -11,4 +11,9 @@ public interface AccountRepository
     List<Account> findByUser_UserID(Integer userID);
 
     boolean existsByAccountNumber(String accountNumber);
+
+    boolean existsByUser_UserIDAndAccountType(
+            Integer userID,
+            String accountType
+    );
 }
