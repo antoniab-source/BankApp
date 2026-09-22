@@ -277,12 +277,31 @@ public Account createAccountForRegistration(
         return accountRepository.save(account);
     }
 
-    public void deleteAccount(Integer accountID) {
+public void deleteAccount(Integer accountID) {
 
-        Account account = getAccountById(accountID);
+    Account account = getAccountById(accountID);
 
-        accountRepository.delete(account);
+    authorizationService.requireAccountAccess(account);
+
+    if (account.getBalance() == null
+            || account.getBalance().compareTo(BigDecimal.ZERO) != 0) {
+
+        throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "Account must have a $0.00 balance before it can be closed"
+        );
     }
+
+    List<Transaction> transactions =
+            transactionRepository
+                    .findByAccount_AccountIDOrderByTransactionDateDesc(
+                            accountID
+                    );
+
+    transactionRepository.deleteAll(transactions);
+
+    accountRepository.delete(account);
+}
 
     @Transactional
     public Account deposit(

@@ -1,4 +1,5 @@
 package com.example.bankapp.service;
+
 import com.example.bankapp.model.User;
 import com.example.bankapp.repository.UserRepository;
 import com.example.bankapp.security.AuthorizationService;
@@ -28,10 +29,12 @@ public class UserService {
 
     public List<User> getAllUsers() {
         authorizationService.requireAdmin();
+
         return userRepository.findAll();
     }
 
     public User getUserById(Integer userID) {
+
         User user = userRepository.findById(userID)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -44,6 +47,7 @@ public class UserService {
     }
 
     public User getUserByUsername(String username) {
+
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -52,11 +56,15 @@ public class UserService {
     }
 
     public User createUser(User user) {
+
         authorizationService.requireAdmin();
 
         user.setUserID(null);
         user.setRole("CUSTOMER");
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        user.setPassword(
+                passwordEncoder.encode(user.getPassword())
+        );
 
         return userRepository.save(user);
     }
@@ -90,7 +98,8 @@ public class UserService {
             );
         }
 
-        if (userRepository.existsByUsername(user.getUsername())) {
+        if (userRepository.existsByUsername(
+                user.getUsername())) {
 
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -98,7 +107,8 @@ public class UserService {
             );
         }
 
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(
+                user.getEmail())) {
 
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -120,7 +130,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User updateUser(Integer userID, User updatedUser) {
+    public User updateUser(
+            Integer userID,
+            User updatedUser) {
+
         authorizationService.requireAdmin();
 
         User user = userRepository.findById(userID)
@@ -136,7 +149,9 @@ public class UserService {
                 && !updatedUser.getPassword().isBlank()) {
 
             user.setPassword(
-                    passwordEncoder.encode(updatedUser.getPassword())
+                    passwordEncoder.encode(
+                            updatedUser.getPassword()
+                    )
             );
         }
 
@@ -144,6 +159,7 @@ public class UserService {
     }
 
     public void deleteUser(Integer userID) {
+
         authorizationService.requireAdmin();
 
         User user = userRepository.findById(userID)
@@ -153,5 +169,99 @@ public class UserService {
                 ));
 
         userRepository.delete(user);
+    }
+
+    public User updateEmail(
+            Integer userID,
+            String newEmail) {
+
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        authorizationService.requireUserAccess(user);
+
+        if (newEmail == null
+                || newEmail.isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email is required"
+            );
+        }
+
+        if (userRepository.existsByEmailAndUserIDNot(
+                newEmail,
+                userID)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Email is already in use"
+            );
+        }
+
+        user.setEmail(newEmail);
+
+        return userRepository.save(user);
+    }
+
+    public void changePassword(
+            Integer userID,
+            String currentPassword,
+            String newPassword) {
+
+        User user = userRepository.findById(userID)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "User not found"
+                ));
+
+        authorizationService.requireUserAccess(user);
+
+        if (currentPassword == null
+                || currentPassword.isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Current password is required"
+            );
+        }
+
+        if (newPassword == null
+                || newPassword.isBlank()) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "New password is required"
+            );
+        }
+
+        if (!passwordEncoder.matches(
+                currentPassword,
+                user.getPassword())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
+                    "Current password is incorrect"
+            );
+        }
+
+        if (passwordEncoder.matches(
+                newPassword,
+                user.getPassword())) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "New password must be different from your current password"
+            );
+        }
+
+        user.setPassword(
+                passwordEncoder.encode(newPassword)
+        );
+
+        userRepository.save(user);
     }
 }

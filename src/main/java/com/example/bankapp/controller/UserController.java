@@ -1,5 +1,7 @@
 package com.example.bankapp.controller;
 
+import com.example.bankapp.dto.ChangePasswordRequest;
+import com.example.bankapp.dto.UpdateEmailRequest;
 import com.example.bankapp.model.User;
 import com.example.bankapp.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -22,12 +24,16 @@ public class UserController {
     }
 
     @GetMapping("/{userID}")
-    public User getUserById(@PathVariable Integer userID) {
+    public User getUserById(
+            @PathVariable Integer userID) {
+
         return userService.getUserById(userID);
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(
+            @RequestBody User user) {
+
         return userService.createUser(user);
     }
 
@@ -36,12 +42,43 @@ public class UserController {
             @PathVariable Integer userID,
             @RequestBody User updatedUser) {
 
-        return userService.updateUser(userID, updatedUser);
+        return userService.updateUser(
+                userID,
+                updatedUser
+        );
+    }
+
+    @PutMapping("/{userID}/email")
+    public User updateEmail(
+            @PathVariable Integer userID,
+            @RequestBody UpdateEmailRequest request) {
+
+        return userService.updateEmail(
+                userID,
+                request.getEmail()
+        );
+    }
+
+    @PutMapping("/{userID}/password")
+    public String changePassword(
+            @PathVariable Integer userID,
+            @RequestBody ChangePasswordRequest request) {
+
+        userService.changePassword(
+                userID,
+                request.getCurrentPassword(),
+                request.getNewPassword()
+        );
+
+        return "Password changed successfully";
     }
 
     @DeleteMapping("/{userID}")
-    public String deleteUser(@PathVariable Integer userID) {
+    public String deleteUser(
+            @PathVariable Integer userID) {
+
         userService.deleteUser(userID);
+
         return "User deleted successfully";
     }
 }

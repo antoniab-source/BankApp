@@ -88,6 +88,7 @@ function AccountDetails({ account, setCurrentPage }) {
       }
 
       const data = await response.json();
+
       setTransactions(data);
     } catch (error) {
       setTransactionError(error.message);
@@ -111,7 +112,9 @@ function AccountDetails({ account, setCurrentPage }) {
           We could not find the account you selected.
         </p>
 
-        <button onClick={() => setCurrentPage("Accounts")}>
+        <button
+          onClick={() => setCurrentPage("Accounts")}
+        >
           Back to My Accounts
         </button>
       </main>
@@ -256,7 +259,9 @@ function AccountDetails({ account, setCurrentPage }) {
       }
 
       if (!destinationAccountID) {
-        throw new Error("Please select a destination account.");
+        throw new Error(
+          "Please select a destination account."
+        );
       }
 
       if (
@@ -319,6 +324,68 @@ function AccountDetails({ account, setCurrentPage }) {
     }
   };
 
+  const handleCloseAccount = async () => {
+    clearMessages();
+
+    const confirmed = window.confirm(
+      "Are you sure you want to close this account? This action cannot be undone."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Please log in first.");
+      }
+
+      const response = await fetch(
+        `http://localhost:8080/api/accounts/${currentAccount.accountID}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error(
+            "Your login has expired. Please log in again."
+          );
+        }
+
+        if (response.status === 403) {
+          throw new Error(
+            "You are not authorized to close this account."
+          );
+        }
+
+        if (response.status === 400) {
+          throw new Error(
+            "This account must have a $0.00 balance before it can be closed."
+          );
+        }
+
+        throw new Error("Failed to close account.");
+      }
+
+      setMessage(
+        `${currentAccount.accountType} account closed successfully.`
+      );
+
+      setTimeout(() => {
+        setCurrentPage("Accounts");
+      }, 1000);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
   const otherAccounts = accounts.filter(
     (otherAccount) =>
       Number(otherAccount.accountID) !==
@@ -331,7 +398,9 @@ function AccountDetails({ account, setCurrentPage }) {
 
   return (
     <main>
-      <button onClick={() => setCurrentPage("Accounts")}>
+      <button
+        onClick={() => setCurrentPage("Accounts")}
+      >
         ← Back to My Accounts
       </button>
 
@@ -463,7 +532,9 @@ function AccountDetails({ account, setCurrentPage }) {
                 id="destinationAccount"
                 value={destinationAccountID}
                 onChange={(event) =>
-                  setDestinationAccountID(event.target.value)
+                  setDestinationAccountID(
+                    event.target.value
+                  )
                 }
                 required
               >
@@ -476,7 +547,8 @@ function AccountDetails({ account, setCurrentPage }) {
                     key={otherAccount.accountID}
                     value={otherAccount.accountID}
                   >
-                    {otherAccount.accountType} Account ending in{" "}
+                    {otherAccount.accountType} Account
+                    ending in{" "}
                     {otherAccount.accountNumber.slice(-4)}
                   </option>
                 ))}
@@ -513,11 +585,13 @@ function AccountDetails({ account, setCurrentPage }) {
           </form>
         )}
 
-        {showTransfer && otherAccounts.length === 0 && (
-          <p>
-            You do not have another account available for transfers.
-          </p>
-        )}
+        {showTransfer &&
+          otherAccounts.length === 0 && (
+            <p>
+              You do not have another account available
+              for transfers.
+            </p>
+          )}
       </section>
 
       <section>
@@ -538,43 +612,53 @@ function AccountDetails({ account, setCurrentPage }) {
         {!transactionLoading &&
           !transactionError &&
           transactions.length === 0 && (
-            <p>No transactions found for this account.</p>
+            <p>
+              No transactions found for this account.
+            </p>
           )}
 
         {!transactionLoading &&
           !transactionError &&
           displayedTransactions.length > 0 && (
             <div>
-              {displayedTransactions.map((transaction) => (
-                <div key={transaction.transactionID}>
-                  <p>
-                    <strong>
-                      {transaction.transactionType}
-                    </strong>
-                  </p>
+              {displayedTransactions.map(
+                (transaction) => (
+                  <div
+                    key={transaction.transactionID}
+                  >
+                    <p>
+                      <strong>
+                        {transaction.transactionType}
+                      </strong>
+                    </p>
 
-                  <p>
-                    Amount: $
-                    {Number(transaction.amount).toFixed(2)}
-                  </p>
+                    <p>
+                      Amount: $
+                      {Number(
+                        transaction.amount
+                      ).toFixed(2)}
+                    </p>
 
-                  <p>
-                    Date:{" "}
-                    {new Date(
-                      transaction.transactionDate
-                    ).toLocaleString()}
-                  </p>
+                    <p>
+                      Date:{" "}
+                      {new Date(
+                        transaction.transactionDate
+                      ).toLocaleString()}
+                    </p>
 
-                  <hr />
-                </div>
-              ))}
+                    <hr />
+                  </div>
+                )
+              )}
             </div>
           )}
 
         {transactions.length > 3 && (
           <button
             onClick={() =>
-              setShowAllTransactions(!showAllTransactions)
+              setShowAllTransactions(
+                !showAllTransactions
+              )
             }
           >
             {showAllTransactions
@@ -599,6 +683,19 @@ function AccountDetails({ account, setCurrentPage }) {
         <p>
           Account ID: {currentAccount.accountID}
         </p>
+      </section>
+
+      <section>
+        <h3>Close Account</h3>
+
+        <p>
+          Your account must have a $0.00 balance before it
+          can be closed.
+        </p>
+
+        <button onClick={handleCloseAccount}>
+          Close Account
+        </button>
       </section>
     </main>
   );
